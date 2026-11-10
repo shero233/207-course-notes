@@ -20,22 +20,70 @@ hide empty members
 ' (Putting the parent/interface on the LEFT of the arrow keeps it on top, which
 '  is the convention used in these notes.)
 
+enum ItemStatus {
+  AVAILABLE
+  ON_LOAN
+  REFERENCE_ONLY
+}
+
 abstract class Item {
   - title : String
   - catalogueNumber : String
+  - status : ItemStatus
   + getTitle() : String
-  + getCatalogueNumber() : String
+  + isOnLoan() : boolean
+  + setStatus(status : ItemStatus) : void
 }
 
 ' TODO: add boxes for Book and DVD. What differs between them — a whole class,
 '       or just the value of a loan-period field?
+class Book {
+  - author : String
+}
+
+class DVD {
+  - director : String
+}
 
 ' TODO: reference-only items cannot be borrowed at all. Decide how to say that
 '       in the diagram: a subclass, or an interface (e.g. "Borrowable") that
 '       only some items realize?
+Item <|-- Book
+Item <|-- DVD
+
 
 ' TODO: add Member and Librarian. What do they have in common? Add the common
 '       supertype if you think one is warranted.
+
+abstract class User {
+  - userId : String
+  - name : String
+  + login() : boolean
+}
+
+class Member {
+  - memberNumber : String
+  - lateFeeBalance : double
+  + placeHold(item : Borrowable) : Hold
+}
+
+class Librarian {
+  - employeeId : String
+  + addItem(item : Item) : void
+  + waiveFee(member : Member, amount : double) : void
+}
+
+User <|-- Member
+User <|-- Librarian
+
+class Hold {
+  - holdDate : Date
+  - status : HoldStatus
+  + cancel() : void
+}
+
+Member "1" -- "*" Hold : places >
+Hold "*" -- "1" Borrowable : on >
 
 ' TODO: add whatever represents a hold, and connect it to the classes that need
 '       to know about it.
